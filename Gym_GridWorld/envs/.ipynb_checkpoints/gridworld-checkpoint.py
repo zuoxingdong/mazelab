@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import colors
 
-from Astar_solver import AstarSolver
-from utils import RandomGridGenerator
+from .Astar_solver import AstarSolver
+from .utils import RandomGridGenerator
 
 import gym
 from gym import error, spaces, utils
