@@ -5,27 +5,35 @@ import matplotlib.animation as animation
 from matplotlib import colors
 
 from .Astar_solver import AstarSolver
-from .utils import RandomGridGenerator
 
 import gym
-from gym import error, spaces, utils
+from gym import spaces
 from gym.utils import seeding
 
-class GridWorldEnv(object):
+class GridWorldEnv(gym.Env):
     """Configurable environment for grid world. """
     metadata = {'render.modes': ['human', 'rgb_array']}
     
-    def __init__(self, grid_map, init_state, goal_states, pob_size=1):
+    def __init__(self, grid_generator, pob_size=1):
         """Initialize the grid world with a given map. DType: list"""
         # Grid map: 0: free space, 1: wall
-        self.grid_map = np.array(grid_map)
-        self.init_state = init_state
-        self.goal_states = goal_states  # A list of multiple (or single) goal states
+        self.grid_map = np.array(grid_generator.get())
+        self.grid_size = self.grid_map.shape
+        self.init_state, self.goal_states = grid_generator.sample_state()
         
         self.state = None
-        self.all_actions = [0, 1, 2, 3]  # 0: Up, 1: Down, 2: Left, 3: Right
         
-        self.pob_size = pob_size  # size of the partial observable window
+        # Action space: 0: Up, 1: Down, 2: Left, 3: Right
+        self.num_actions = 4
+        self.action_space = spaces.Discrete(self.num_actions)
+        self.all_actions = list(range(self.action_space.n))
+        # Observation space: Tuple of rows
+        self.observation_space = spaces.Tuple(
+                        [spaces.MultiDiscrete(np.tile([0, self.num_actions], [self.grid_size[1], 1])), ]*self.grid_size[0]
+                        )
+        
+        # Size of the partial observable window
+        self.pob_size = pob_size
         
         # Create Figure for rendering
         self.fig, (self.ax_full, self.ax_partial) = plt.subplots(nrows=1, ncols=2)

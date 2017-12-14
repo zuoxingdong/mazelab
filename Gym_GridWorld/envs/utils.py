@@ -47,6 +47,9 @@ class RandomGridGenerator(object):
         
         return init_state, goal_states
     
+    def get(self):
+        return self.grid
+    
 
 class TMazeGenerator(object):
     def __init__(self, num_T, T_size, block_size):
@@ -161,7 +164,7 @@ class TMazeGenerator(object):
         while not np.any(self.maze[:, -2:] == 0):
             self.maze = self.maze[:, :-1]
             
-    def _sample_state(self):
+    def sample_state(self):
         height_maze, width_maze = self.maze.shape
         # Free space for possible initial and goal positions
         free_init = self.maze[-self.block_size[0]-1 : -1, :width_maze//2]
@@ -187,3 +190,6 @@ class TMazeGenerator(object):
         self.maze[idx_goal[0], idx_goal[1]] = 0
         
         return init_state, goal_states
+    
+    def get(self):
+        return self.maze
