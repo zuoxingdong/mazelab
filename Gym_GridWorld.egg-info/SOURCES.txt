@@ -1,6 +1,0 @@
-README.md
-Gym_GridWorld.egg-info/PKG-INFO
-Gym_GridWorld.egg-info/SOURCES.txt
-Gym_GridWorld.egg-info/dependency_links.txt
-Gym_GridWorld.egg-info/requires.txt
-Gym_GridWorld.egg-info/top_level.txt
