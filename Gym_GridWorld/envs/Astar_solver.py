@@ -79,6 +79,7 @@ class Frontier(object):
     def __len__(self):
         return len(self.heap)
     
+    
 class AstarSolver(object):
     """A* solver for the maze"""
     def __init__(self, env, goal):
@@ -124,7 +125,7 @@ class AstarSolver(object):
 
         while frontier:
             node = frontier.pop()
-            if node.state == self.goal:  # goal test
+            if tuple(node.state) == tuple(self.goal):  # goal test
                 return node
             explored.add(tuple(node.state))
 

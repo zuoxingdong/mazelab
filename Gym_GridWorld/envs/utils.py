@@ -2,6 +2,8 @@ import numpy as np
 
 from itertools import product as cartesian_product
 
+from skimage.draw import circle, circle_perimeter
+
 
 class RandomGridGenerator(object):
     
@@ -12,7 +14,7 @@ class RandomGridGenerator(object):
         self.grid = self._generate_grid()
         
     def _generate_grid(self):
-        grid_size = self.grid_size - 2  # Without the wall
+        grid_size = self.grid_size# - 2  # Without the wall
         
         grid = np.zeros([grid_size, grid_size]) 
         
@@ -193,3 +195,40 @@ class TMazeGenerator(object):
     
     def get(self):
         return self.maze
+    
+
+class WaterMazeGenerator(object):
+    def __init__(self, radius_maze, radius_platform):
+        self.radius_maze = radius_maze
+        self.radius_platform = radius_platform
+        
+        # Generate free space for water maze
+        self.maze = np.ones([2*self.radius_maze, 2*self.radius_maze])
+        self.maze[circle(self.radius_maze, self.radius_maze, self.radius_maze - 1)] = 0
+        
+        # Generate circular platform
+        self.platform = np.zeros_like(self.maze)
+        radius_diff = self.radius_maze - self.radius_platform - 1
+        valid_x, valid_y = circle(self.radius_maze, self.radius_maze, radius_diff)
+        coord_platform = np.stack([valid_x, valid_y], axis=1)[np.random.choice(range(valid_x.shape[0]))]
+        self.platform[circle(*coord_platform, self.radius_platform)] = 3
+        
+    def sample_state(self):
+        """Randomly sample an initial state and goal state within the platform"""
+        # Get indices for all free spaces exclude platform, i.e. zero
+        free_space = np.where(self.maze + self.platform == 0)
+        free_space = list(zip(*free_space))
+
+        # Sample indices for initial state
+        init_idx = np.random.choice(len(free_space), size=1)[0]
+        
+        # Convert initial state to a list, goal states to list of list
+        init_state = list(free_space[init_idx])
+        
+        # Goal states are the states within platform
+        goal_states = list(zip(*np.where(self.platform == 3)))
+        
+        return init_state, goal_states
+        
+    def get(self):
+        return self.maze + self.platform
