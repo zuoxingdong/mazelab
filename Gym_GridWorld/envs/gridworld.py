@@ -36,12 +36,10 @@ class GridWorldEnv(gym.Env):
             raise TypeError('Action type must be either \'VonNeumann\' or \'Moore\'')
         self.action_space = spaces.Discrete(self.num_actions)
         self.all_actions = list(range(self.action_space.n))
-        # Observation space: Tuple of rows
+        # Observation space
         low_obs = 0  # Lowest integer in observation
         high_obs = 6  # Highest integer in observation
-        self.observation_space = spaces.Tuple(
-                        [spaces.MultiDiscrete(np.tile([low_obs, high_obs], [self.grid_size[1], 1])), ]*self.grid_size[0]
-                        )
+        self.observation_space = spaces.Box(low=low_obs, high=high_obs, shape=self.grid_size)
         
         # Size of the partial observable window
         self.pob_size = pob_size
