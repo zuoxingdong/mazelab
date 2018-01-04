@@ -4,25 +4,28 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import colors
 
-from .Astar_solver import AstarSolver
-
 import gym
 from gym import spaces
 from gym.utils import seeding
 
-class GridWorldEnv(gym.Env):
-    """Configurable environment for grid world. """
+
+class MazeEnv(gym.Env):
+    """Configurable environment for maze. """
     metadata = {'render.modes': ['human', 'rgb_array']}
     
-    def __init__(self, grid_generator, pob_size=1, trace=False, action_type='VonNeumann'):
-        """Initialize the grid world with a given map. DType: list"""
-        # Grid map: 0: free space, 1: wall
-        self.grid_generator = grid_generator
-        self.grid_map = np.array(self.grid_generator.get())
-        self.grid_size = self.grid_map.shape
-        self.init_state, self.goal_states = self.grid_generator.sample_state()
+    def __init__(self, maze_generator, pob_size=1, action_type='VonNeumann', render_trace=False):
+        """Initialize the maze. DType: list"""
+        # Maze: 0: free space, 1: wall
+        self.maze_generator = maze_generator
+        self.maze = np.array(self.maze_generator.get_maze())
+        self.maze_size = self.maze.shape
+        self.init_state, self.goal_states = self.maze_generator.sample_state()
         
-        self.trace = trace
+        #######
+        # TODO: Eliminate traces for _reset and _step, only show during _render for ax_imgs
+        #######
+        self.render_trace = render_trace
+        self.traces = []
         self.action_type = action_type
         
         self.state = None
@@ -39,7 +42,7 @@ class GridWorldEnv(gym.Env):
         # Observation space
         low_obs = 0  # Lowest integer in observation
         high_obs = 6  # Highest integer in observation
-        self.observation_space = spaces.Box(low=low_obs, high=high_obs, shape=self.grid_size)
+        self.observation_space = spaces.Box(low=low_obs, high=high_obs, shape=self.maze_size)
         
         # Size of the partial observable window
         self.pob_size = pob_size
@@ -50,7 +53,7 @@ class GridWorldEnv(gym.Env):
         self.cmap = colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'gray'])
         self.bounds = [0, 1, 2, 3, 4, 5, 6]  # values for each color
         self.norm = colors.BoundaryNorm(self.bounds, self.cmap.N)
-        self.ax_full_img = self.ax_full.imshow(self.grid_map, cmap=self.cmap, norm=self.norm, animated=True)
+        self.ax_full_img = self.ax_full.imshow(self.maze, cmap=self.cmap, norm=self.norm, animated=True)
         
         self.ax_full.axis('off')
         self.ax_partial.axis('off')
@@ -62,9 +65,8 @@ class GridWorldEnv(gym.Env):
         # Update current state
         self.state = self._next_state(self.state, action)
         
-        # Footprint: Change state to indicate agent's trajectory
-        if self.trace:
-            self.grid_map[self.state[0], self.state[1]] = 6
+        # Footprint: Record agent trajectory
+        self.traces.append(self.state)
         
         if self._goal_test(self.state):  # Goal check
             reward = +1
@@ -81,31 +83,27 @@ class GridWorldEnv(gym.Env):
         
         return self._get_obs(), reward, done, info
     
-    def _reset(self, solve=False):
-        # Reset grid map
-        self.grid_map = np.array(self.grid_generator.get())
+    def _reset(self):
+        # Reset maze
+        self.maze = np.array(self.maze_generator.get_maze())
         
         # Set current state be initial state
         self.state = self.init_state
         
-        # Compute optimal trajectories by A* search from initial position to each goal
-        self.optimal_solution = {}
-        if solve:
-            for i, goal in enumerate(self.goal_states):
-                solver = AstarSolver(self, goal)
-
-                if solver.solvable():
-                    self.optimal_solution[('optimal actions', i)] = solver.get_actions()
-                    self.optimal_solution[('optimal trajectory', i)] = solver.get_states()
-        
         # Clean the list of ax_imgs, the buffer for generating videos
         self.ax_imgs = []
+        # Clean the traces of the trajectory
+        self.traces = [self.init_state]
         
         return self._get_obs()
     
     def _render(self, mode='human', close=False):
         obs = self._get_obs()
         partial_obs = self._get_partial_obs(self.pob_size)
+        
+        # For rendering traces: Only for visualization, does not affect the observation data
+        if self.render_trace:
+            obs[list(zip(*self.traces[:-1]))] = 6
         
         self.fig.show()
         self.ax_full_img = self.ax_full.imshow(obs, cmap=self.cmap, norm=self.norm, animated=True)
@@ -137,21 +135,22 @@ class GridWorldEnv(gym.Env):
                            4: [-1, +1], 5: [+1, +1], 6: [-1, -1], 7: [+1, -1]}
         
         new_state = [state[0] + transitions[action][0], state[1] + transitions[action][1]]
-        if self.grid_map[new_state[0]][new_state[1]] == 1:  # Hit wall, stay there
+        if self.maze[new_state[0]][new_state[1]] == 1:  # Hit wall, stay there
             return state
         else:  # Valid move for 0, 2, 3, 4
             return new_state
             
     def _step_cost(self, state, action, next_state):
         """Return a cost that a given action leads a state to a next_state"""
-        return 1  # Simple grid world: uniform cost for each step in the path.
+        return 1  # Simple maze: uniform cost for each step in the path.
     
     def _get_obs(self):
-        """Return a 2D array representation of grid world."""
-        obs = np.array(self.grid_map)
+        """Return a 2D array representation of maze."""
+        obs = np.array(self.maze)
         # Set goal positions
         for goal in self.goal_states:
             obs[goal[0]][goal[1]] = 3  # 3: goal
+        
         # Set current position
         # Come after painting goal positions, avoid invisible within multi-goal regions
         obs[self.state[0]][self.state[1]] = 2  # 2: agent
@@ -160,19 +159,19 @@ class GridWorldEnv(gym.Env):
     
     def _get_partial_obs(self, size=1):
         """Get partial observable window according to Moore neighborhood"""
-        # Get grid map with indicated location of current position and goal positions
-        grid = self._get_obs()
+        # Get maze with indicated location of current position and goal positions
+        maze = self._get_obs()
         pos = np.array(self.state)
 
         under_offset = np.min(pos - size)
-        over_offset = np.min(len(grid) - (pos + size + 1))
+        over_offset = np.min(len(maze) - (pos + size + 1))
         offset = np.min([under_offset, over_offset])
 
         if offset < 0:  # Need padding
-            grid = np.pad(grid, np.abs(offset), 'constant', constant_values=1)
+            maze = np.pad(maze, np.abs(offset), 'constant', constant_values=1)
             pos += np.abs(offset)
 
-        return grid[pos[0]-size : pos[0]+size+1, pos[1]-size : pos[1]+size+1]
+        return maze[pos[0]-size : pos[0]+size+1, pos[1]-size : pos[1]+size+1]
         
     def _get_video(self, interval=200, gif_path=None):
         anim = animation.ArtistAnimation(self.fig, self.ax_imgs, interval=interval)

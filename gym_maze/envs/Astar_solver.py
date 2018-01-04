@@ -1,3 +1,8 @@
+########################################################################################
+#  Modified from https://github.com/aimacode/aima-python/blob/master/search.ipynb
+########################################################################################
+
+
 import heapq
 
 import numpy as np
@@ -29,10 +34,10 @@ class Node(object):
         """Operator of less than"""
         return self.path_cost < node.path_cost
     
-    def next_node(self, gridworld, action):
+    def next_node(self, maze, action):
         """Returns a Node with next state by taking an action from current state"""
         next_state = env._next_state(self.state, action)
-        step_cost = gridworld.step_cost(self.state, action, next_state)
+        step_cost = maze.step_cost(self.state, action, next_state)
         
         return Node(next_state, self, action, step_cost)
 
@@ -90,7 +95,7 @@ class AstarSolver(object):
         self.solution_node = self._astar_search(self._heuristic)
     
     def solvable(self):
-        """Return True if there exists a valid solution by the definition of this gridworld."""
+        """Return True if there exists a valid solution by the definition of this maze."""
         return self.solution_node is not None
     
     def get_actions(self):
@@ -120,7 +125,7 @@ class AstarSolver(object):
             h: A heuristic function
         """
         f = lambda node: node.path_cost + h(node.state)
-        frontier = Frontier(Node(self.env.init_state), f)
+        frontier = Frontier(Node(self.env.state), f)
         explored = set()
 
         while frontier:
@@ -144,5 +149,5 @@ class AstarSolver(object):
         return None  # No solution found
 
     def _heuristic(self, state):
-        """Heuristic function for grid world: Euclidean distance to the goal"""
+        """Heuristic function for maze: Euclidean distance to the goal"""
         return np.linalg.norm(np.array(state) - np.array(self.goal))
