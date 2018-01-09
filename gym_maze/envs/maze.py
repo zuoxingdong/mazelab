@@ -47,16 +47,10 @@ class MazeEnv(gym.Env):
         # Size of the partial observable window
         self.pob_size = pob_size
         
-        # Create Figure for rendering
-        self.fig, (self.ax_full, self.ax_partial) = plt.subplots(nrows=1, ncols=2)
         # Colormap: order of color is, free space, wall, agent, food, poison
         self.cmap = colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'gray'])
         self.bounds = [0, 1, 2, 3, 4, 5, 6]  # values for each color
         self.norm = colors.BoundaryNorm(self.bounds, self.cmap.N)
-        self.ax_full_img = self.ax_full.imshow(self.maze, cmap=self.cmap, norm=self.norm, animated=True)
-        
-        self.ax_full.axis('off')
-        self.ax_partial.axis('off')
         
         self.ax_imgs = []  # For generating videos
         
@@ -98,12 +92,22 @@ class MazeEnv(gym.Env):
         return self._get_obs()
     
     def _render(self, mode='human', close=False):
+        if close:
+            plt.close()
+            return
+        
         obs = self._get_obs()
         partial_obs = self._get_partial_obs(self.pob_size)
         
         # For rendering traces: Only for visualization, does not affect the observation data
         if self.render_trace:
             obs[list(zip(*self.traces[:-1]))] = 6
+        
+        # Create Figure for rendering
+        if not hasattr(self, 'fig'):  # initialize figure and plotting axes
+            self.fig, (self.ax_full, self.ax_partial) = plt.subplots(nrows=1, ncols=2)
+        self.ax_full.axis('off')
+        self.ax_partial.axis('off')
         
         self.fig.show()
         self.ax_full_img = self.ax_full.imshow(obs, cmap=self.cmap, norm=self.norm, animated=True)
