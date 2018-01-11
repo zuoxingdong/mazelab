@@ -15,6 +15,7 @@ class MazeEnv(gym.Env):
     
     def __init__(self, maze_generator, pob_size=1,
                  action_type='VonNeumann',
+                 obs_type='full',
                  live_display=False,
                  render_trace=False):
         """Initialize the maze. DType: list"""
@@ -30,6 +31,7 @@ class MazeEnv(gym.Env):
         self.render_trace = render_trace
         self.traces = []
         self.action_type = action_type
+        self.obs_type = obs_type
         
         # If True, show the updated display each time render is called rather
         # than storing the frames and creating an animation at the end
@@ -46,13 +48,22 @@ class MazeEnv(gym.Env):
             raise TypeError('Action type must be either \'VonNeumann\' or \'Moore\'')
         self.action_space = spaces.Discrete(self.num_actions)
         self.all_actions = list(range(self.action_space.n))
+
+        # Size of the partial observable window
+        self.pob_size = pob_size
+
         # Observation space
         low_obs = 0  # Lowest integer in observation
         high_obs = 6  # Highest integer in observation
-        self.observation_space = spaces.Box(low=low_obs, high=high_obs, shape=self.maze_size)
+        if self.obs_type == 'full':
+            self.observation_space = spaces.Box(low=low_obs, high=high_obs,
+                                                shape=self.maze_size)
+        elif self.obs_type == 'partial':
+            self.observation_space = spaces.Box(low=low_obs, high=high_obs,
+                                                shape=(self.pob_size*2+1, self.pob_size*2+1))
+        else:
+            raise TypeError('Observation type must be either \'full\' or \'partial\'')
         
-        # Size of the partial observable window
-        self.pob_size = pob_size
         
         # Colormap: order of color is, free space, wall, agent, food, poison
         self.cmap = colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'gray'])
@@ -103,7 +114,7 @@ class MazeEnv(gym.Env):
             plt.close()
             return
         
-        obs = self._get_obs()
+        obs = self._get_full_obs()
         partial_obs = self._get_partial_obs(self.pob_size)
         
         # For rendering traces: Only for visualization, does not affect the observation data
@@ -172,6 +183,13 @@ class MazeEnv(gym.Env):
         return 1  # Simple maze: uniform cost for each step in the path.
     
     def _get_obs(self):
+
+        if self.obs_type == 'full':
+            return self._get_full_obs()
+        elif self.obs_type == 'partial':
+            return self._get_partial_obs(self.pob_size)
+
+    def _get_full_obs(self):
         """Return a 2D array representation of maze."""
         obs = np.array(self.maze)
         # Set goal positions
@@ -187,7 +205,7 @@ class MazeEnv(gym.Env):
     def _get_partial_obs(self, size=1):
         """Get partial observable window according to Moore neighborhood"""
         # Get maze with indicated location of current position and goal positions
-        maze = self._get_obs()
+        maze = self._get_full_obs()
         pos = np.array(self.state)
 
         under_offset = np.min(pos - size)
