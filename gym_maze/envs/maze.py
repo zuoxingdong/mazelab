@@ -13,7 +13,9 @@ class MazeEnv(gym.Env):
     """Configurable environment for maze. """
     metadata = {'render.modes': ['human', 'rgb_array']}
     
-    def __init__(self, maze_generator, pob_size=1,
+    def __init__(self, 
+                 maze_generator, 
+                 pob_size=1,
                  action_type='VonNeumann',
                  obs_type='full',
                  live_display=False,
@@ -183,7 +185,6 @@ class MazeEnv(gym.Env):
         return 1  # Simple maze: uniform cost for each step in the path.
     
     def _get_obs(self):
-
         if self.obs_type == 'full':
             return self._get_full_obs()
         elif self.obs_type == 'partial':
@@ -221,7 +222,7 @@ class MazeEnv(gym.Env):
     def _get_video(self, interval=200, gif_path=None):
         if self.live_display:
             # TODO: Find a way to create animations without slowing down the live display
-            print("Warning: Generating an Animation when live_display=True not yet supported")
+            print('Warning: Generating an Animation when live_display=True not yet supported.')
         anim = animation.ArtistAnimation(self.fig, self.ax_imgs, interval=interval)
         
         if gif_path is not None:

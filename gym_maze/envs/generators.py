@@ -11,20 +11,7 @@ class MazeGenerator(object):
         self.maze = None
     
     def sample_state(self):
-        raise NotImplementedError
-        
-    def get_maze(self):
-        return self.maze
-
-
-class SimpleMazeGenerator(MazeGenerator):
-    def __init__(self, maze):
-        super().__init__()
-        
-        self.maze = maze
-        
-    def sample_state(self):
-        """Randomly sample an initial state and a goal state"""
+        """Uniformaly sample an initial state and a goal state"""
         # Get indices for all free spaces, i.e. zero
         free_space = np.where(self.maze == 0)
         free_space = list(zip(free_space[0], free_space[1]))
@@ -37,6 +24,16 @@ class SimpleMazeGenerator(MazeGenerator):
         goal_states = [list(free_space[goal_idx])]  # TODO: multiple goals
         
         return init_state, goal_states
+        
+    def get_maze(self):
+        return self.maze
+
+
+class SimpleMazeGenerator(MazeGenerator):
+    def __init__(self, maze):
+        super().__init__()
+        
+        self.maze = maze
         
 
 class RandomMazeGenerator(MazeGenerator):
@@ -81,23 +78,8 @@ class RandomMazeGenerator(MazeGenerator):
                         Z[y_ + (y - y_) // 2, x_ + (x - x_) // 2] = 1
                         x, y = x_, y_
         return Z.astype(int)
-    
-    def sample_state(self):
-        """Randomly sample an initial state and a goal state"""
-        # Get indices for all free spaces, i.e. zero
-        free_space = np.where(self.maze == 0)
-        free_space = list(zip(free_space[0], free_space[1]))
 
-        # Sample indices for initial state and goal state
-        init_idx, goal_idx = np.random.choice(len(free_space), size=2, replace=False)
-        
-        # Convert initial state to a list, goal states to list of list
-        init_state = list(free_space[init_idx])
-        goal_states = [list(free_space[goal_idx])]  # TODO: multiple goals
-        
-        return init_state, goal_states 
-        
-        
+
 class RandomBlockMazeGenerator(MazeGenerator):
     def __init__(self, maze_size, obstacle_ratio):
         super().__init__()
@@ -128,20 +110,29 @@ class RandomBlockMazeGenerator(MazeGenerator):
         
         return maze
     
-    def sample_state(self):
-        """Randomly sample an initial state and a goal state"""
-        # Get indices for all free spaces, i.e. zero
-        free_space = np.where(self.maze == 0)
-        free_space = list(zip(free_space[0], free_space[1]))
 
-        # Sample indices for initial state and goal state
-        init_idx, goal_idx = np.random.choice(len(free_space), size=2, replace=False)
+class UMazeGenerator(MazeGenerator):
+    def __init__(self, len_long_corridor, len_short_corridor, width, wall_size=1):
+        super().__init__()
         
-        # Convert initial state to a list, goal states to list of list
-        init_state = list(free_space[init_idx])
-        goal_states = [list(free_space[goal_idx])]  # TODO: multiple goals
+        self.len_long_corridor = len_long_corridor
+        self.len_short_corridor = len_short_corridor
+        self.width = width
+        self.wall_size = wall_size
         
-        return init_state, goal_states    
+        self.maze = self._generate_maze()
+        
+    def _generate_maze(self):
+        # Make empty maze with appropriate shape
+        maze = np.zeros([self.len_short_corridor + 2*self.width, self.len_long_corridor])
+        
+        # Fill obstables between two long corridors
+        maze[self.width : self.width+self.len_short_corridor, : self.len_long_corridor-self.width] = 1
+        
+        # Padding with walls
+        maze = np.pad(maze, self.wall_size, 'constant', constant_values=1)
+        
+        return maze
     
 
 class TMazeGenerator(MazeGenerator):

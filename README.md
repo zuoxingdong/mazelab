@@ -34,6 +34,8 @@ of the agent's trajectory following the optimal actions solved by A* optimal pla
 ![Random block maze](data/random_block_maze.gif)
 ## Random maze
 ![Random maze](data/random_maze.gif)
+## U-maze
+![U-maze](data/U_maze.gif)
 ## Multiple T-maze
 ![Multiple T-maze](data/T_maze.gif)
 ## Morris water maze
