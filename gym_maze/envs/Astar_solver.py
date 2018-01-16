@@ -139,7 +139,7 @@ class AstarSolver(object):
                 child = Node(child_state, 
                              prev_node=node, 
                              action=action, 
-                             step_cost=self.env._step_cost(node.state, action, child_state))
+                             step_cost=self._step_cost(node.state, action, child_state))
                 chlid_state = tuple(child.state)
                 if chlid_state not in explored and chlid_state not in frontier:
                     frontier.add(child)
@@ -151,3 +151,7 @@ class AstarSolver(object):
     def _heuristic(self, state):
         """Heuristic function for maze: Euclidean distance to the goal"""
         return np.linalg.norm(np.array(state) - np.array(self.goal))
+    
+    def _step_cost(self, state, action, next_state):
+        """Return a cost that a given action leads a state to a next_state"""
+        return 1  # Simple maze: uniform cost for each step in the path.

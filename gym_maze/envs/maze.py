@@ -27,9 +27,6 @@ class MazeEnv(gym.Env):
         self.maze_size = self.maze.shape
         self.init_state, self.goal_states = self.maze_generator.sample_state()
         
-        #######
-        # TODO: Eliminate traces for _reset and _step, only show during _render for ax_imgs
-        #######
         self.render_trace = render_trace
         self.traces = []
         self.action_type = action_type
@@ -179,10 +176,6 @@ class MazeEnv(gym.Env):
             return state
         else:  # Valid move for 0, 2, 3, 4
             return new_state
-            
-    def _step_cost(self, state, action, next_state):
-        """Return a cost that a given action leads a state to a next_state"""
-        return 1  # Simple maze: uniform cost for each step in the path.
     
     def _get_obs(self):
         if self.obs_type == 'full':
@@ -228,3 +221,20 @@ class MazeEnv(gym.Env):
         if gif_path is not None:
             anim.save(gif_path, writer='imagemagick', fps=10)
         return anim
+    
+
+class SparseMazeEnv(MazeEnv):
+    def _step(self, action):
+        obs, reward, done, info = super()._step(action)
+        
+        # Indicator reward function
+        if reward != 1:
+            reward = 0
+            
+        return obs, reward, done, info
+            
+        
+        
+        
+
+
