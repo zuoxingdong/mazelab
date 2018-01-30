@@ -138,8 +138,8 @@ class MazeEnv(gym.Env):
             self.ax_partial_img.set_data(partial_obs)
         else:
             # Create a new image each time to allow an animation to be created
-            self.ax_full_img = self.ax_full.imshow(obs, cmap=self.cmap, norm=self.norm, animated=True)
-            self.ax_partial_img = self.ax_partial.imshow(partial_obs, cmap=self.cmap, norm=self.norm, animated=True)
+            self.ax_full_img = self.ax_full.imshow(obs, cmap=self.cmap, norm=self.norm, animated=True, interpolation='none')
+            self.ax_partial_img = self.ax_partial.imshow(partial_obs, cmap=self.cmap, norm=self.norm, animated=True, interpolation='none')
         
         plt.draw()
         
