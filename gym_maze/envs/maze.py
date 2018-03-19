@@ -71,7 +71,7 @@ class MazeEnv(gym.Env):
         
         self.ax_imgs = []  # For generating videos
         
-    def _step(self, action):
+    def step(self, action):
         old_state = self.state
         # Update current state
         self.state = self._next_state(self.state, action)
@@ -94,7 +94,7 @@ class MazeEnv(gym.Env):
         
         return self._get_obs(), reward, done, info
     
-    def _reset(self):
+    def reset(self):
         # Reset maze
         self.maze = np.array(self.maze_generator.get_maze())
         
@@ -108,7 +108,7 @@ class MazeEnv(gym.Env):
         
         return self._get_obs()
     
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         if close:
             plt.close()
             return
@@ -224,7 +224,7 @@ class MazeEnv(gym.Env):
     
 
 class SparseMazeEnv(MazeEnv):
-    def _step(self, action):
+    def step(self, action):
         obs, reward, done, info = super()._step(action)
         
         # Indicator reward function
@@ -234,7 +234,9 @@ class SparseMazeEnv(MazeEnv):
         return obs, reward, done, info
             
         
-        
+##########################################
+# TODO: Make Partial observable envs as OOP-style
+###########################################
         
 
 
