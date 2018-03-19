@@ -55,11 +55,15 @@ class MazeEnv(gym.Env):
         low_obs = 0  # Lowest integer in observation
         high_obs = 6  # Highest integer in observation
         if self.obs_type == 'full':
-            self.observation_space = spaces.Box(low=low_obs, high=high_obs,
-                                                shape=self.maze_size)
+            self.observation_space = spaces.Box(low=low_obs, 
+                                                high=high_obs,
+                                                shape=self.maze_size, 
+                                                dtype=np.float32)
         elif self.obs_type == 'partial':
-            self.observation_space = spaces.Box(low=low_obs, high=high_obs,
-                                                shape=(self.pob_size*2+1, self.pob_size*2+1))
+            self.observation_space = spaces.Box(low=low_obs, 
+                                                high=high_obs,
+                                                shape=(self.pob_size*2+1, self.pob_size*2+1), 
+                                                dtype=np.float32)
         else:
             raise TypeError('Observation type must be either \'full\' or \'partial\'')
         

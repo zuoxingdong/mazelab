@@ -9,12 +9,12 @@ The repo will be actively maintained, any comments, feedbacks or improvements ar
 # Dependencies
 
 This repository requires following packages:
-- gym >= 0.9.4
-- Python >= 3.6
-- Numpy >= 1.13.3
-- Matplotlib >= 2.1.1
+- gym >= 0.10.4
+- Python >= 3.6.4
+- Numpy >= 1.14.2
+- Matplotlib >= 2.1.2
 - Scikit-image >= 0.13.1
-- (Recommended) JupyterLab >= 0.31.0
+- (Recommended) JupyterLab >= 0.31.12
 
 # Installation
 
