@@ -21,6 +21,9 @@ class MazeEnv(gym.Env):
                  live_display=False,
                  render_trace=False):
         """Initialize the maze. DType: list"""
+        # Random seed with internal gym seeding
+        self.seed()
+        
         # Maze: 0: free space, 1: wall
         self.maze_generator = maze_generator
         self.maze = np.array(self.maze_generator.get_maze())
@@ -97,6 +100,11 @@ class MazeEnv(gym.Env):
         info = {}
         
         return self._get_obs(), reward, done, info
+    
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        
+        return [seed]
     
     def reset(self):
         # Reset maze
