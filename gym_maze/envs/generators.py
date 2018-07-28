@@ -280,16 +280,17 @@ class TMazeGenerator(MazeGenerator):
     
     
 class WaterMazeGenerator(MazeGenerator):
-    def __init__(self, radius_maze, radius_platform):
+    def __init__(self, radius_maze, radius_platform, obstacle_ratio=0.0):
         super().__init__()
         
         self.radius_maze = radius_maze
         self.radius_platform = radius_platform
+        self.obstacle_ratio = obstacle_ratio
         
         # Generate free space for water maze
         self.maze = np.ones([2*self.radius_maze, 2*self.radius_maze])
         self.maze[circle(self.radius_maze, self.radius_maze, self.radius_maze - 1)] = 0
-        
+
         # Generate circular platform
         self.platform = np.zeros_like(self.maze)
         radius_diff = self.radius_maze - self.radius_platform - 1
@@ -299,20 +300,38 @@ class WaterMazeGenerator(MazeGenerator):
         
         # Add platform to the maze array
         self.maze += self.platform
+
+        # Add obstacles to the maze
+        # List of all possible locations
+        all_idx = np.array(list(cartesian_product(range(self.radius_maze * 2), range(self.radius_maze * 2))))
+
+        # Randomly sample locations according to obstacle_ratio
+        _r = (radius_maze * 2) ** 2
+        random_idx_idx = np.random.choice(_r, size=int(self.obstacle_ratio * _r), replace=False)
+        random_obs_idx = all_idx[random_idx_idx]
+
+        # Fill obstacles
+        for idx in random_obs_idx:
+            if self.maze[idx[0], idx[1]] != 3:  # Don't add obstacles on goal states
+                self.maze[idx[0], idx[1]] = 1
         
     def sample_state(self):
         """Randomly sample an initial state and goal state within the platform"""
         # Get indices for all free spaces exclude platform, i.e. zero
         free_space = np.where(self.maze + self.platform == 0)
         free_space = list(zip(*free_space))
+        if len(free_space) == 0:
+            raise Exception('No free space on the maze.. is obstacles ratio high?')
 
         # Sample indices for initial state
         init_idx = np.random.choice(len(free_space), size=1)[0]
-        
+
         # Convert initial state to a list, goal states to list of list
         init_state = list(free_space[init_idx])
-        
+
         # Goal states are the states within platform
         goal_states = list(zip(*np.where(self.platform == 3)))
         
         return init_state, goal_states
+
+
