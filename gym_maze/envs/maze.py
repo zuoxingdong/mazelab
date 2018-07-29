@@ -23,7 +23,7 @@ class MazeEnv(gym.Env):
         """Initialize the maze. DType: list"""
         # Random seed with internal gym seeding
         self.seed()
-        
+
         # Maze: 0: free space, 1: wall
         self.maze_generator = maze_generator
         self.maze = np.array(self.maze_generator.get_maze())
@@ -109,7 +109,8 @@ class MazeEnv(gym.Env):
     def reset(self):
         # Reset maze
         self.maze = np.array(self.maze_generator.get_maze())
-        
+        self.init_state, self.goal_states = self.maze_generator.sample_state()
+
         # Set current state be initial state
         self.state = self.init_state
         
