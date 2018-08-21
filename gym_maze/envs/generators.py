@@ -82,7 +82,7 @@ class RandomMazeGenerator(MazeGenerator):
 
 class RandomBlockMazeGenerator(MazeGenerator):
     def __init__(self, maze_size, obstacle_ratio):
-        super().__init__()
+        super(RandomBlockMazeGenerator, self).__init__()
         
         self.maze_size = maze_size
         self.obstacle_ratio = obstacle_ratio
@@ -295,7 +295,7 @@ class WaterMazeGenerator(MazeGenerator):
         radius_diff = self.radius_maze - self.radius_platform - 1
         valid_x, valid_y = circle(self.radius_maze, self.radius_maze, radius_diff)
         coord_platform = np.stack([valid_x, valid_y], axis=1)[np.random.choice(range(valid_x.shape[0]))]
-        self.platform[circle(*coord_platform, self.radius_platform)] = 3
+        self.platform[circle(coord_platform[0], coord_platform[1], self.radius_platform)] = 3
         
         # Add platform to the maze array
         self.maze += self.platform
