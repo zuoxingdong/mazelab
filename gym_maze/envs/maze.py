@@ -107,8 +107,13 @@ class MazeEnv(gym.Env):
         return [seed]
     
     def reset(self):
+        # sample new maze
+        self.maze_generator.maze = self.maze_generator._generate_maze()
+
         # Reset maze
         self.maze = np.array(self.maze_generator.get_maze())
+        self.init_state, self.goal_states = self.maze_generator.sample_state()
+
         
         # Set current state be initial state
         self.state = self.init_state

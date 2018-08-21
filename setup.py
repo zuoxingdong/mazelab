@@ -3,7 +3,7 @@ import sys
 
 # Only support Python 3
 if sys.version_info.major != 3:
-    print(f'WARNING: This package only officially support Python 3, the current version is Python {sys.version_info.major}. The installation will likely fail. ')
+    print 'WARNING: This package only officially support Python 3, the current version is Python {sys.version_info.major}. The installation will likely fail.'
 
 setup(name='gym_maze',
       install_requires=['gym', 
