@@ -1,18 +1,31 @@
 from setuptools import setup
-import sys
+from setuptools import find_packages
 
-# Only support Python 3
-if sys.version_info.major != 3:
-    print(f'WARNING: This package only officially support Python 3, the current version is Python {sys.version_info.major}. The installation will likely fail. ')
 
-setup(name='gym_maze',
+with open('README.md', 'r') as f:
+    long_description = f.read()
+
+setup(name='mazelab',
+      version='0.0.1',
+      author='Xingdong Zuo',
+      author_email='zuoxingdong@hotmail.com',
+      description='mazelab: A customizable gym environment for maze and gridworld',
+      long_description=long_description, 
+      long_description_content_type='text/markdown',
+      url='https://github.com/zuoxingdong/mazelab',
+      # Minimal requried dependencies (full dependencies in requirements.txt)
       install_requires=['gym', 
                         'numpy', 
                         'matplotlib', 
-                        'scikit-image', 
-                        'jupyterlab'],
-      description='gym-maze: A customizable gym environment for maze and gridworld',
-      author='Xingdong Zuo',
-      url='https://github.com/zuoxingdong/gym-maze',
-      version='0.1'
+                        'scikit-image'],
+      tests_require=['pytest'],
+      python_requires='>=3',
+      # List all packages (folder with __init__.py), useful to distribute a release
+      packages=find_packages(), 
+      # tell pip some metadata (e.g. Python version, OS etc.)
+      classifiers=['Programming Language :: Python :: 3', 
+                   'License :: OSI Approved :: MIT License', 
+                   'Operating System :: OS Independent', 
+                   'Natural Language :: English', 
+                   'Topic :: Scientific/Engineering :: Artificial Intelligence']
 )
