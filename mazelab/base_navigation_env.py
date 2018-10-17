@@ -1,6 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
 
+from copy import deepcopy
+
 from .base_env import BaseEnv
 
 
@@ -13,7 +15,6 @@ class BaseNavigationEnv(BaseEnv, ABC):
     
     - :meth:`step`
     - :meth:`reset`
-    - :meth:`get_image`
     - :meth:`make_state`
     - :meth:`make_goal`
     - :meth:`is_valid`
@@ -25,6 +26,33 @@ class BaseNavigationEnv(BaseEnv, ABC):
         
         self.state = self.make_state()
         self.goal = self.make_goal()
+    
+    def get_object_map(self):
+        object_map = deepcopy(self.maze.x)
+        
+        for position in self.state.positions:
+            object_map[position[0]][position[1]] = self.state
+        
+        for position in self.goal.positions:
+            object_map[position[0]][position[1]] = self.goal
+            
+        return object_map
+    
+    def get_observation(self):
+        observation = self.get_object_map()
+        for h in range(len(observation)):
+            for w in range(len(observation[0])):
+                observation[h][w] = observation[h][w].value
+                
+        return observation
+    
+    def get_image(self):
+        img = self.get_object_map()
+        for h in range(len(img)):
+            for w in range(len(img[0])):
+                img[h][w] = img[h][w].color
+                
+        return img
     
     @abstractmethod
     def make_state(self):

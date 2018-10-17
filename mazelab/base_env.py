@@ -7,6 +7,8 @@ import gym
 from gym.utils import seeding
 from gym import spaces
 
+from PIL import Image
+
 
 class BaseEnv(gym.Env, ABC):
     """Base class for all mazelab environments. 
@@ -48,8 +50,13 @@ class BaseEnv(gym.Env, ABC):
     def get_image(self):
         pass
     
-    def render(self, mode='human'):
+    def render(self, mode='human', max_width=500):
         img = self.get_image()
+        img = np.asarray(img).astype(np.uint8)
+        img_height, img_width = img.shape[:2]
+        ratio = max_width/img_width
+        img = Image.fromarray(img).resize([int(ratio*img_width), int(ratio*img_height)])
+        img = np.asarray(img)
         if mode == 'rgb_array':
             return img
         elif mode == 'human':
