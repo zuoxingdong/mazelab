@@ -6,7 +6,7 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setup(name='mazelab',
-      version='0.0.1',
+      version='1.0.0',
       author='Xingdong Zuo',
       author_email='zuoxingdong@hotmail.com',
       description='mazelab: A customizable framework to create maze and gridworld environments.',
