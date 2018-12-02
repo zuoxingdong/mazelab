@@ -142,7 +142,7 @@ Please use this bibtex if you want to cite this repository in your publications:
     
     @misc{mazelab,
           author = {Zuo, Xingdong},
-          title = {A customizable framework to create maze and gridworld environments.},
+          title = {mazelab: A customizable framework to create maze and gridworld environments.},
           year = {2018},
           publisher = {GitHub},
           journal = {GitHub repository},
