@@ -1,4 +1,4 @@
-# `mazelab`: mazelab: A customizable framework to create maze and gridworld environments.
+# `mazelab`: A customizable framework to create maze and gridworld environments.
 
 This repository contains a customizable framework to create maze and gridworld environments with gym-like API. It has modular designs and it allows large flexibility for the users to easily define their own environments such as changing rendering colors, adding more objects, define available actions etc. The motivation of this
 repository is, as maze or gridworld are used very often in the reinforcement learning community, however, 
@@ -136,3 +136,16 @@ and the class should look like at least:
 - More extensive documentations
 - More different kinds of mazes
 - More color patterns
+
+# Reference
+Please use this bibtex if you want to cite this repository in your publications:
+    
+    @misc{mazelab,
+          author = {Zuo, Xingdong},
+          title = {A customizable framework to create maze and gridworld environments.},
+          year = {2018},
+          publisher = {GitHub},
+          journal = {GitHub repository},
+          howpublished = {\url{https://github.com/zuoxingdong/mazelab}},
+        }
+
