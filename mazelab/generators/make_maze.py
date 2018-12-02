@@ -1,6 +1,7 @@
 import numpy as np
 
 from skimage.draw import rectangle
+from skimage.draw import circle
 from skimage.draw import random_shapes
 
 
