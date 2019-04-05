@@ -93,6 +93,18 @@ of the agent's trajectory following the optimal actions solved by our build-in D
 - **Record video of executing optimal actions**: Wrap the environment with gym's `Monitor` to make a video animation. 
     * Practical tip: One can use `imageio` to convert mp4 video to GIF. Refer to the [examples](examples/) for more details. 
 
+# What's new
+
+- 2019-04-05 (v0.2.0)
+    - Entirely re-written for much simpler API
+    - Subclassing `gym.Env` to allow all related compatibilities
+
+- 2019-01-01 (v0.1.0)
+    - Bugfixes
+
+- 2018-11-18 (v0.0.1)
+    - Initial release
+
 # Roadmap
 - More extensive documentations
 - More different kinds of mazes
