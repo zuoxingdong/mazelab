@@ -1,6 +1,6 @@
-# Update: 2018-12-02
+# Update: 2019-04-05
 
-gym>=0.10.9
-numpy>=1.15.2
-matplotlib>=3.0.0
-scikit-image>=0.14.1
+gym>=0.12.1
+numpy>=1.16.2
+matplotlib>=3.0.3
+scikit-image>=0.15.0

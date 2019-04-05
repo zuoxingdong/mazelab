@@ -38,99 +38,60 @@ Detailed tutorials is coming soon. For now, it is recommended to have a look in 
 
 # Examples
 
-We have provided a Jupyter Notebook for each example to illustrate how to make various of maze environments, and generate animation
+We have provided a [Jupyter Notebook](examples/navigation_env.ipynb) for each example to illustrate how to make various of maze environments, and generate animation
 of the agent's trajectory following the optimal actions solved by our build-in Dijkstra optimal planner. 
 
-## [Simple empty maze](examples/simple_empty_maze)
-![Simple empty maze](data/simple_empty_maze.gif)
-## [Random shape maze](examples/random_shape_maze)
-![Random shape maze](data/random_shape_maze.gif)
-## [Random maze](examples/random_maze)
-![Random maze](data/random_maze.gif)
-## [U-maze](examples/u_maze)
-![U-maze](data/u_maze.gif)
-## [Double T-maze](examples/t_maze)
-![Double T-maze](data/t_maze.gif)
-## [Morris water maze](examples/morris_water_maze)
-![Morris water maze](data/morris_water_maze.gif)
+## Simple empty maze
+![Simple empty maze](examples/SimpleEmptyMaze-v0.gif)
+## Random shape maze
+![Random shape maze](examples/RandomShapeMaze-v0.gif)
+## Random maze
+![Random maze](examples/RandomMaze-v0.gif)
+## U-maze
+![U-maze](examples/UMaze-v0.gif)
+## Double T-maze
+![Double T-maze](examples/DoubleTMaze-v0.gif)
+## Morris water maze
+![Morris water maze](examples/MorrisWaterMaze-v0.gif)
 
 # How to create your own maze/gridworld environment
 
-- **Define Generator**: You can define your own maze generator, simply by creating a class inherited from base class `BaseGenerator` 
-and the class should look like at least: 
+- **Define Generator**: You can define your own maze generator, simply generate a two dimensional numpy array consisting of objects labeled by integers.
+
+- **Subclass BaseMaze**: Define your own maze by creating all `Object` and their properties
 
 ```python
-    class Generator(BaseGenerator):
+    class Maze(BaseMaze):
+        @property
+        def size(self):
+            return 10, 10
+
         def make_objects(self):
-            ...
-
-        def __call__(self):
-            ...
+            free = Object('free', 0, color.free, False, np.stack(np.where(x == 0), axis=1))
+            obstacle = Object('obstacle', 1, color.obstacle, True, np.stack(np.where(x == 1), axis=1))
+            agent = Object('agent', 2, color.agent, False, [])
+            goal = Object('goal', 3, color.goal, False, [])
+            return free, obstacle, agent, goal
 ```
 
-- **Create maze object**: 
+- **Define Motion**: Define your own motion or simply use the one we provided:  [VonNeumannMotion](mazelab/motion.py), [MooreMotion](mazelab/motion.py)
+
+- **Define gym environment**: Subclass the `BaseEnv` to define the gym environment. 
+
+- **Register environment**: It is recommended to register your own environment to allow easy-to-use `gym.make`
 
 ```python
-    generator = Generator()
-    maze = Maze(generator)
+    gym.envs.register(id=some_name, entry_point=your_file_or_class, max_episode_steps=some_steps)
 ```
 
-- **Define Motion**: define your own available actions
+- **Build-in Dijkstra solver**: For simple goal-reaching environment, one could use the build-in Dijkstra solver to compute the optimal action sequences given the current agent position and goal position. 
 
 ```python
-    motion = Motion()
-    motion.add('north', [-1, 0])
-    motion.add('south', [1, 0])
-    motion.add('west', [0, -1])
-    motion.add('east', [0, 1])
+    actions = dijkstra_solver(impassable_array, motions, start, goal)
 ```
 
-- **Define Gym-like Environment**:
-
-```python
-    class Env(BaseNavigationEnv):
-        def step(self, action):
-            ...
-
-        def reset(self):
-            self.state = self.make_state()
-            self.goal = self.make_goal()
-
-            return self.get_observation()
-
-        def make_state(self):
-            ...
-
-        def make_goal(self):
-            ...
-
-        def is_valid(self, position):
-            ...
-
-        def is_goal(self, position):
-```
-
-- **Create environment**:
-
-```python
-    env = Env(maze, motion)
-```
-
-- **Solve environment**:
-
-```python
-    actions = dijkstra_solver(np.array(env.maze.to_impassable()), env.motion, env.state.positions[0], env.goal.positions[0])
-```
-
-- **Record video of executing optimal actions**:
-
-```python
-    env = Monitor(env, directory='./', force=True)
-    env.reset()
-    for action in actions:
-        env.step(action)
-    env.close()
-```
+- **Record video of executing optimal actions**: Wrap the environment with gym's `Monitor` to make a video animation. 
+    * Practical tip: One can use `imageio` to convert mp4 video to GIF. Refer to the [examples](examples/) for more details. 
 
 # Roadmap
 - More extensive documentations
